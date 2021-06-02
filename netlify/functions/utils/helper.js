@@ -11,8 +11,8 @@ exports.stripLink = (url) => url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "")
  //to attach header on every request
 const headers = {
         'Access-Control-Allow-Origin': '*', //change later to ur domain || localhost
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+        'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers',
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS'
       };
 
 exports.response = (statusCode, body) => 

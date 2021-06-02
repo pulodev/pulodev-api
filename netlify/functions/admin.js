@@ -18,6 +18,7 @@ exports.handler = async (event, context, callback) => {
 
     const params = querystring.parse(event.body)
 
+    //aggregator
     if (event.httpMethod === "POST") { 
       if(segments[0] == 'store' && segments[1] == 'content') {
         return await storeContents(event.body)
