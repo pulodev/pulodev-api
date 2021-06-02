@@ -27,19 +27,17 @@ exports.handler = async (event, context, callback) => {
       if(segments[0] == 'updatetime' && segments[1] == 'source') {
         return await updateLastCheckedAt(event.body)
       }
-    }
 
-  	if (event.httpMethod === "PUT") { 
-     if(segments[0] == 'verify') {
+      if(segments[0] == 'verify') {
         const type = segments[1] 
-     		return await handleUpdate(params.ids, type)
-     }
-   }
+        return await handleUpdate(params.ids, type)
+      }
 
-   if (event.httpMethod === "DELETE") {
-      const type = segments[0] 
-      return await handleDelete(params.ids, type)
-   }
+      if(segments[0] == 'delete') {
+        const type = segments[1] 
+        return await handleDelete(params.ids, type)
+      }
+    }
 }
 
 async function handleFilter(type) {
