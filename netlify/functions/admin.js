@@ -16,28 +16,39 @@ exports.handler = async (event, context, callback) => {
               return await getActiveContents()
     }
 
-    const params = querystring.parse(event.body)
-
     //aggregator
     if (event.httpMethod === "POST") { 
+      const params = JSON.parse(event.body)
+
       if(segments[0] == 'store' && segments[1] == 'content') {
-        return await storeContents(event.body)
+        return await storeContents(params)
       }
 
       if(segments[0] == 'updatetime' && segments[1] == 'source') {
-        return await updateLastCheckedAt(event.body)
+        return await updateLastCheckedAt(params)
       }
 
-      if(segments[0] == 'verify') {
+      //ADMIN PROTECTED
+      if(verifySecretCode(params.secret_code) == false)
+        return response(403, { errors:'not allowed, check ur secret code' });
+
+      if(segments[0] == 'publish') {
         const type = segments[1] 
-        return await handleUpdate(params.ids, type)
+        return await publishDraft(params, type)
       }
 
       if(segments[0] == 'delete') {
         const type = segments[1] 
-        return await handleDelete(params.ids, type)
+        return await handleDelete(params, type)
       }
     }
+}
+
+function verifySecretCode(secret_code) {
+  if(process.env.CUSTOM_ADMIN_KEY != secret_code)
+    return false
+
+  return true
 }
 
 async function handleFilter(type) {
@@ -55,22 +66,28 @@ async function handleFilter(type) {
 }
 
 
-async function handleUpdate(ids, type) {
+async function publishDraft(params, type) {
+  const ids = params.ids
+
   //to handle single id
   let id_array = []
   let all_ids = id_array.concat(ids) 
   
-  await AdminDB.updateStatusBulk(type, all_ids)
+  const {data, err} = await AdminDB.updateStatusBulk(type, all_ids)
+  if(err) console.log(err)
 
   return response(200, {msg: `${type} successfully published`});
 }
 
-async function handleDelete(ids, type) {
+async function handleDelete(params, type) {
+  const ids = params.ids
+
   //to handle single id
   let id_array = []
   let all_ids = id_array.concat(ids) 
   
-  await AdminDB.deleteBulk(type, all_ids)
+  const {data, err} = await AdminDB.deleteBulk(type, all_ids)
+  if(err) console.log(err)
 
   return response(200, {msg: `${type} successfully deleted`});
 }
@@ -85,7 +102,7 @@ async function getActiveContents() {
 }
 
 async function storeContents(_params) {
-  const items = JSON.parse(_params).items
+  const items = _params.items
 
   const {insertedData, error} = await AdminDB.storeBulkContent(items)
   if(error) {           
@@ -95,9 +112,7 @@ async function storeContents(_params) {
   return response(200, {msg: 'success'});
 }
 
-async function updateLastCheckedAt(_params) {
-  const params = JSON.parse(_params)
-
+async function updateLastCheckedAt(params) {
   const {data, error} = await AdminDB.updateTime(params.last_checked_at, params.id)
   if(error) {           
       console.log(error)
