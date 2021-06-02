@@ -15,7 +15,8 @@ exports.index = async function(_searchQuery, _media, _page) {
               .select('*', { count: 'exact' })
               .ilike('title', `%${_searchQuery}%`)
               .like('media', _media)
-              .eq('draft', false)     
+              .is('draft', false)   
+              .is('deleted_at', null)  
               .range(range_start, range_end)    
               .order('original_published_at', { ascending: false })
 }
@@ -79,4 +80,5 @@ exports.getDraft = async () =>
     await supabase
               .from('contents')
               .select('*')
-              .eq('draft', true)
+              .is('draft',true)
+              .is('deleted_at', null)

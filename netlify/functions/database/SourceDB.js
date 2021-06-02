@@ -71,4 +71,5 @@ exports.getDraft = async () =>
     await supabase
       .from('sources')
       .select('*')
-      .eq('draft', true)
+      .is('draft',true)
+      .is('deleted_at', null)
