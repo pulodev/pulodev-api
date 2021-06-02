@@ -19,3 +19,6 @@ Backend (Netlify):
 Database (Supabase):
 - How to migrate: [coming soon]
 https://supabase.io/docs/guides/database
+
+## Todo
+- @content-meta.js: how to get tag

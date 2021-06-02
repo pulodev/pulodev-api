@@ -7,6 +7,8 @@ exports.getRequestPath = (event) => {
 
 exports.stripLink = (url) => url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "")
 
+//Custom Response and Callback
+ //to attach header on every request
 const headers = {
         'Access-Control-Allow-Origin': '*', //change later to ur domain || localhost
         'Access-Control-Allow-Headers': 'Content-Type',
