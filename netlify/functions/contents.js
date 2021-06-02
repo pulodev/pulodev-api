@@ -33,7 +33,7 @@ exports.handler = async function(event, context, callback) {
                     title: 'required|minLength:5', 
                     body: 'required|minLength:5',
                     url: 'required|url',
-                    media: 'required|in:tulisan,web,podcast,video' 
+                    media: 'required|in:tulisan,web,tool,podcast,video' 
                   }
 
     if (event.httpMethod === "POST") {
