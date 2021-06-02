@@ -11,10 +11,23 @@ exports.handler = async (event, context, callback) => {
           //Route:: Filter unpublished for admin to verify first.
           if (queryParameter.draft != undefined) 
                 return await handleFilter(queryParameter.draft)
+
+          if(segments[0] == 'active-contents')
+              return await getActiveContents()
     }
 
-    
     const params = querystring.parse(event.body)
+
+    if (event.httpMethod === "POST") { 
+      if(segments[0] == 'store' && segments[1] == 'content') {
+        return await storeContents(event.body)
+      }
+
+      if(segments[0] == 'updatetime' && segments[1] == 'source') {
+        return await updateLastCheckedAt(event.body)
+      }
+    }
+
   	if (event.httpMethod === "PUT") { 
      if(segments[0] == 'verify') {
         const type = segments[1] 
@@ -61,4 +74,35 @@ async function handleDelete(ids, type) {
   await AdminDB.deleteBulk(type, all_ids)
 
   return response(200, {msg: `${type} successfully deleted`});
+}
+
+async function getActiveContents() {
+  const {data: sources, error} = await AdminDB.getActiveSource()
+  
+  if(error) 
+         return error
+  
+  return response(200, {items: sources});
+}
+
+async function storeContents(_params) {
+  const items = JSON.parse(_params).items
+
+  const {insertedData, error} = await AdminDB.storeBulkContent(items)
+  if(error) {           
+      console.log(error)
+  }
+
+  return response(200, {msg: 'success'});
+}
+
+async function updateLastCheckedAt(_params) {
+  const params = JSON.parse(_params)
+
+  const {data, error} = await AdminDB.updateTime(params.last_checked_at, params.id)
+  if(error) {           
+      console.log(error)
+  }
+
+  return response(200, {msg: 'success'});
 }

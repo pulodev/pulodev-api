@@ -30,33 +30,17 @@ exports.store = async (params) =>
 
 
 //Update Data
-exports.update = async function(params, id) {
-    return await supabase
-                .from('sources')
-                .update([
-                    {
-                        title: params.title,
-                        url: params.url,
-                        media: params.media,
-                        updated_at: new Date()
-                    },
-                ])
-                .match({
-                    id: id
-                })
-}
-
-exports.updateTime = async function(lastBuildIime, id) {
-    return await supabase
-                .from('sources')
-                .update([
-                    {
-                        last_checked_at: lastBuildIime
-                    },
-                ])
-                .match({
-                    id: id
-                })
-}
-
-
+exports.update = async (params, id) =>
+    await supabase
+            .from('sources')
+            .update([
+                {
+                    title: params.title,
+                    url: params.url,
+                    media: params.media,
+                    updated_at: new Date()
+                },
+            ])
+            .match({
+                id: id
+            })

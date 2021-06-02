@@ -59,11 +59,3 @@ exports.store = async (params) =>
                 },
             ])
 
-exports.storeBulk = async function(items) {
-    const { data, error } = await supabase
-                              .from('contents')
-                              .upsert(items , { onConflict: 'url'})
-
-   if (error) console.log('error', error)
-    return data
-}
