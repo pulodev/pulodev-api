@@ -59,17 +59,4 @@ exports.updateTime = async function(lastBuildIime, id) {
                 })
 }
 
-//Update Data
-exports.updateStatusBulk = async (ids) => 
-     await supabase
-            .from('sources')
-            .update({draft: false})
-            .in('id', ids)
 
-
-exports.getDraft = async () =>
-    await supabase
-      .from('sources')
-      .select('*')
-      .is('draft',true)
-      .is('deleted_at', null)

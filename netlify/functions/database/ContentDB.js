@@ -67,18 +67,3 @@ exports.storeBulk = async function(items) {
    if (error) console.log('error', error)
     return data
 }
-
-//Update Data
-exports.updateStatusBulk = async (ids) => 
-     await supabase
-            .from('contents')
-            .update({draft: false})
-            .in('id', ids)
-
-
-exports.getDraft = async () =>
-    await supabase
-              .from('contents')
-              .select('*')
-              .is('draft',true)
-              .is('deleted_at', null)

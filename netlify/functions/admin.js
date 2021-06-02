@@ -1,5 +1,4 @@
-const ContentDB = require('./database/ContentDB');
-const SourceDB = require('./database/SourceDB');
+const AdminDB = require('./database/AdminDB');
 const querystring = require('querystring');
 const { getRequestPath, response, resCallback } = require('./utils/helper');
 
@@ -15,25 +14,28 @@ exports.handler = async (event, context, callback) => {
     }
 
     
+    const params = querystring.parse(event.body)
   	if (event.httpMethod === "PUT") { 
-     const params = querystring.parse(event.body)
-     //link/verify/contents	|| sources
      if(segments[0] == 'verify') {
         const type = segments[1] 
-        console.log(params.ids)
      		return await handleUpdate(params.ids, type)
      }
+   }
+
+   if (event.httpMethod === "DELETE") {
+      const type = segments[0] 
+      return await handleDelete(params.ids, type)
    }
 }
 
 async function handleFilter(type) {
       let items = null
       if(type == 'contents') {
-        let {data: contents, error} = await ContentDB.getDraft()
+        let {data: contents, error} = await AdminDB.getDraft(type)
         items = contents
       }
       else {
-        let {data: sources, error} = await SourceDB.getDraft()
+        let {data: sources, error} = await AdminDB.getDraft(type)
         items = sources
       }
       
@@ -46,10 +48,17 @@ async function handleUpdate(ids, type) {
   let id_array = []
   let all_ids = id_array.concat(ids) 
   
-  if(type == 'contents') 
-	 await ContentDB.updateStatusBulk(all_ids)
-  else 
-    await SourceDB.updateStatusBulk(all_ids)
+  await AdminDB.updateStatusBulk(type, all_ids)
 
   return response(200, {msg: `${type} successfully published`});
+}
+
+async function handleDelete(ids, type) {
+  //to handle single id
+  let id_array = []
+  let all_ids = id_array.concat(ids) 
+  
+  await AdminDB.deleteBulk(type, all_ids)
+
+  return response(200, {msg: `${type} successfully deleted`});
 }
