@@ -1,26 +1,39 @@
-const querystring = require('querystring');
 const ogs = require('open-graph-scraper');
-const { resCallback } = require('./utils/helper');
+const { resCallback, response } = require('./utils/helper');
 
 exports.handler = function (event, context, callback) {
-    const params = querystring.parse(event.body)
+    const params = JSON.parse(event.body)
+    const url = params.url
 
-    ogs({ url: params.url })
-        .then((data) => {
+     ogs({ url: url })
+            .then(function(data) {
             const { error, result, response } = data;
             
-            console.log(result)
+            if(error)
+                 resCallback(400, {'errors': error }, callback)
+
+             //Set Owner
+             let owner = result.ogSiteName ? result.ogSiteName : ''
+             if(result.author)
+                owner = result.author
+
+            //Set PublishDate
+            let publishDate = result.ogDate ? result.ogDate : new Date()
+            if(result.articlePublishedTime)
+                publishDate = result.articlePublishedTime
+            
 
             resCallback(200, {
                     title: result.ogTitle,
                     body: result.ogDescription,
                     url: result.requestUrl,
-                    owner: result.ogSiteName ? result.ogSiteName : '',
+                    owner: owner,
                     thumbnail: result.ogImage ? result.ogImage.url : '',
-                    media: result.ogType ? result.ogType : '',
-                    original_published_at: result.ogDate,
+                    original_published_at: publishDate,
                     tags: '',
                 }, callback)
+        }).catch((error) => {
+            resCallback(400, {'errors': error }, callback)
         })
 }
 

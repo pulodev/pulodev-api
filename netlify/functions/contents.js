@@ -28,7 +28,7 @@ exports.handler = async function(event, context, callback) {
     }
 
    //Data preparation for POST request
-   const params = querystring.parse(event.body)
+   const params = JSON.parse(event.body)
    const rules =  { 
                     title: 'required|minLength:5', 
                     body: 'required|minLength:5',
@@ -37,8 +37,9 @@ exports.handler = async function(event, context, callback) {
                   }
 
     if (event.httpMethod === "POST") {
-        validateInput(callback, params, rules)
-        return await handlePost(params)
+        const _content = params.content
+        validateInput(callback, _content, rules)
+        return await handlePost(_content)
     }
 }
 
@@ -55,17 +56,17 @@ async function handleGet(_searchQuery = '',  _media = '*', _page = 1) {
 }
 
 //Submit Content
-async function handlePost(params) {
-    const strippedUrl = stripLink(params.url)
+async function handlePost(_content) {
+    const strippedUrl = stripLink(_content.url)
     const {data: prevContent, _err} = await ContentDB.containsUrl(strippedUrl)
     
     if (prevContent.length != 0) 
         return response(400, {
-            message: 'content is already exists'
+            errors: 'Maaf.. Link ini sudah ada di PuloDev, tidak perlu submit lagi :)' 
         })
     
     //insert if new
-    const {content, error} = await ContentDB.store(params)
+    const {content, error} = await ContentDB.store(_content)
     if(error) 
          return response(405, {
             errors: error
