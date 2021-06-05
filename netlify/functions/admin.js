@@ -20,6 +20,11 @@ exports.handler = async (event, context, callback) => {
     if (event.httpMethod === "POST") { 
       const params = JSON.parse(event.body)
 
+
+      //ADMIN PROTECTED
+      if(verifySecretCode(params.secret_code) == false)
+        return response(403, { errors:'not allowed, check ur secret code' });
+      
       if(segments[0] == 'store' && segments[1] == 'content') {
         return await storeContents(params)
       }
@@ -27,10 +32,6 @@ exports.handler = async (event, context, callback) => {
       if(segments[0] == 'updatetime' && segments[1] == 'source') {
         return await updateLastCheckedAt(params)
       }
-
-      //ADMIN PROTECTED
-      if(verifySecretCode(params.secret_code) == false)
-        return response(403, { errors:'not allowed, check ur secret code' });
 
       if(segments[0] == 'publish') {
         const type = segments[1] 
